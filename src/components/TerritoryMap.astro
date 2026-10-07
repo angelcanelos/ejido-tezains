@@ -1,0 +1,168 @@
+---
+import Icon from "./Icon.astro";
+import { stats } from "../data/site";
+
+// Mapa estático: imagen satelital de Esri (zoom 12) con los límites del ejido
+// proyectados a los píxeles de /images/territorio-satelital.jpg.
+const W = 1176;
+const H = 1574;
+const boundary =
+  "M639.1 515.6L784.8 519.3L860.7 709.9L741.8 710.3L741.9 845.6L627.6 845.7L650.6 960.3L656.5 960.2L656.5 1107.4L702.2 1107.3L703.8 960.2L960.2 960L1061.9 1215.6L1054.9 1211.2L982 1286.1L751.8 1420.3L565.9 1465L460.4 1439.2L421.6 1459.9L329 1321.5L237 1312.1L234.6 1303.5L249.2 1295.7L120 1103.8L114.1 961.3L124.1 911.5L157.1 869.6L299.4 892.8L315.7 846.2L577.6 840.5L628.4 707.7L317.3 711L317.6 675L286.2 619.1L639.4 618.4L639.1 515.6ZM956.5 1033.1L747.6 1033.4L747.8 1243.9L956.7 1243.7L956.5 1033.1ZM166.7 109.4L359.5 109L359.9 291.7L223 292L167 233.2L166.7 109.4ZM506.9 108.7L621 108.5L676.1 246.7L538.4 291.3L507.4 291.4L506.9 108.7ZM396.5 108.9L470.1 108.8L470.3 200.1L396.6 200.3L396.5 108.9Z";
+
+const zonas = [
+  { icon: "pine", label: "Producción maderable", ha: stats.maderable, color: "#4ade80" },
+  { icon: "leaf", label: "Conservación y reservas", ha: stats.conservacion, color: "#bef264" },
+  { icon: "sprout", label: "Uso común y otros", ha: 13597, color: "#fbbf24" },
+] as const;
+const totalZonas = zonas.reduce((sum, z) => sum + z.ha, 0);
+
+/**
+ * Localidades. Las comunidades (`main`) vienen de OpenStreetMap / GeoNames; los parajes son aproximados.
+ * `place` indica de qué lado del punto va la etiqueta.
+ */
+const ranchos = [
+  { name: "San Diego de Tezains", lat: 24.8956, lng: -106.1194, icon: "community", color: "#4ade80", main: true },
+  { name: "Nuevo San Diego", lat: 24.9552, lng: -105.9745, icon: "community", color: "#86efac", main: true, place: "left" },
+  { name: "Chamacueros", lat: 25.1859, lng: -106.0162, icon: "community", color: "#bef264", main: true, place: "left" },
+  { name: "El Susto", lat: 25.2134, lng: -106.1103, icon: "community", color: "#fde047", main: true, place: "left" },
+  { name: "Montoros", lat: 24.97, lng: -106.2006, icon: "mountain", color: "#fbbf24" },
+  { name: "El Alazán", lat: 25.0548, lng: -106.1224, icon: "pine", color: "#bef264" },
+  { name: "Del Alazán", lat: 24.8914, lng: -105.9188, icon: "pine", color: "#5eead4", place: "bottom" },
+  { name: "El Colorado", lat: 24.8833, lng: -106.1732, icon: "pine", color: "#f59e0b", place: "bottom" },
+  { name: "El Táscate", lat: 24.817, lng: -106.0205, icon: "mountain", color: "#7dd3fc" },
+] as const;
+
+// Web Mercator a zoom 12, desplazado al recorte de la imagen.
+const WORLD = 256 * 2 ** 12;
+const X0 = 214808.98;
+const Y0 = 448206.0;
+const toPct = (lat: number, lng: number) => {
+  const sin = Math.sin((lat * Math.PI) / 180);
+  const x = ((lng + 180) / 360) * WORLD - X0;
+  const y = (0.5 - Math.log((1 + sin) / (1 - sin)) / (4 * Math.PI)) * WORLD - Y0;
+  return `left:${(x / W) * 100}%;top:${(y / H) * 100}%`;
+};
+
+const fmt = (n: number) => n.toLocaleString("en-US");
+---
+
+<section id="territorio" class="relative isolate overflow-hidden bg-forest-950 py-16 text-white sm:py-20">
+  <!-- Fondo: miniatura de 48 px ya desenfocada (en vez de desenfocar con CSS la foto completa, que es costoso). -->
+  <img src="/images/territorio-satelital-blur.webp" alt="" aria-hidden="true" loading="lazy" class="absolute inset-0 -z-20 size-full object-cover opacity-40" />
+  <div class="absolute inset-0 -z-10 bg-forest-950/60"></div>
+
+  <div class="container-x grid grid-cols-[minmax(0,1fr)] items-center gap-10 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-12">
+    <!-- Mapa -->
+    <div data-reveal="left">
+      <div class="relative mx-auto aspect-[1176/1574] w-full max-w-[30rem] overflow-hidden rounded-3xl bg-forest-950 shadow-2xl shadow-black/50 ring-1 ring-lime-300/25 lg:h-[min(80svh,42rem)] lg:w-auto lg:max-w-none">
+        <img src="/images/territorio-satelital.webp" alt="Imagen satelital con los límites del Ejido San Diego de Tezains" width="900" height="1205" loading="lazy" decoding="async" class="absolute inset-0 size-full object-cover brightness-90 saturate-125" />
+        <svg viewBox={`0 0 ${W} ${H}`} class="absolute inset-0 size-full" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <path d={`M0 0H${W}V${H}H0Z${boundary}`} fill="rgb(3 10 6 / .5)" fill-rule="evenodd" />
+          <path d={boundary} fill="rgb(74 222 128 / .12)" fill-rule="evenodd" />
+          <!-- Halo con un trazo ancho y translúcido: mucho más barato que un filtro drop-shadow animado. -->
+          <path d={boundary} fill="none" stroke="rgb(190 242 100 / .28)" stroke-width="9" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+          <path d={boundary} class="march" fill="none" stroke="#bef264" stroke-width="3" stroke-dasharray="10 7" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+        </svg>
+
+        {
+          ranchos.map((r) => {
+            const main = "main" in r;
+            const place = "place" in r ? r.place : "right";
+            return (
+              <div class="group absolute hover:z-10" style={toPct(r.lat, r.lng)}>
+                <span
+                  class:list={[
+                    "absolute grid -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 bg-forest-950/85 text-white shadow-lg",
+                    main ? "marker-pulse size-7" : "size-6",
+                  ]}
+                  style={`border-color:${r.color};color:${r.color}`}
+                >
+                  <Icon name={r.icon} class={main ? "size-4" : "size-3.5"} />
+                </span>
+                <span
+                  class:list={[
+                    "absolute rounded-full bg-forest-950/85 px-2 py-0.5 font-sans leading-4 whitespace-nowrap text-white shadow-lg ring-1 transition duration-300 group-hover:bg-forest-950 group-hover:ring-2",
+                    main ? "text-xs font-bold ring-2" : "text-[0.65rem] font-semibold text-white/85",
+                    place === "left" && (main ? "right-5" : "right-4") + " -translate-y-1/2",
+                    place === "right" && (main ? "left-5" : "left-4") + " -translate-y-1/2",
+                    place === "bottom" && "top-3.5 -translate-x-1/2",
+                  ]}
+                  style={`--tw-ring-color:${r.color}`}
+                >
+                  {r.name}
+                </span>
+              </div>
+            );
+          })
+        }
+
+        <div class="pointer-events-none absolute top-3 left-3 grid size-11 place-items-center rounded-full bg-forest-950/80 ring-1 ring-lime-300/40" aria-hidden="true">
+          <span class="flex flex-col items-center leading-none">
+            <span class="text-[0.6rem] font-bold">N</span>
+            <svg viewBox="0 0 24 24" class="size-5"><path d="M12 2 19 21 12 17 5 21Z" fill="#fff" /></svg>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información -->
+    <div class="flex flex-col gap-5">
+      <div data-reveal="up">
+        <p class="text-xs font-semibold tracking-[0.35em] text-lime-300 uppercase">Ejido forestal</p>
+        <h2 class="mt-2 font-sans text-3xl font-bold sm:text-4xl">San Diego de Tezains</h2>
+        <p class="mt-2 text-xs font-semibold tracking-[0.3em] text-white/60 uppercase">Territorio · Bosque · Futuro</p>
+        <p class="mt-5 max-w-lg leading-relaxed text-white/75">
+          En la Sierra Madre Occidental, entre los 24°48' y 25°13' de latitud norte, nuestro ejido resguarda bosques de pino-encino ricos en biodiversidad. Cuatro comunidades —San Diego, La Teodora, El Susto y Chamacueros— viven y trabajan en él.
+        </p>
+      </div>
+
+      <div class="rounded-3xl bg-forest-950/80 p-5 ring-1 ring-lime-300/25" data-reveal="up" data-delay="100">
+        <div class="flex items-center gap-4">
+          <span class="grid size-12 shrink-0 place-items-center rounded-full bg-lime-300/15 text-lime-300 ring-1 ring-lime-300/40"><Icon name="pine" class="size-7" /></span>
+          <div>
+            <p class="text-xs font-semibold tracking-[0.2em] text-white/70 uppercase">Superficie del ejido</p>
+            <p class="font-sans text-3xl font-bold sm:text-4xl">
+              <span data-count={stats.superficie} data-decimals="2">0</span> <span class="text-2xl text-lime-300">ha</span>
+            </p>
+          </div>
+        </div>
+        <div class="mt-5 flex h-2 overflow-hidden rounded-full bg-white/10" aria-hidden="true">
+          {zonas.map((z) => <span style={`width:${(z.ha / totalZonas) * 100}%;background:${z.color}`} />)}
+        </div>
+        <ul class="mt-4 divide-y divide-white/10">
+          {
+            zonas.map((z) => (
+              <li class="group flex items-center gap-3 py-2.5">
+                <span class="sway-icon grid size-9 shrink-0 place-items-center rounded-full ring-1" style={`color:${z.color};--tw-ring-color:${z.color};background:color-mix(in oklab, ${z.color} 15%, transparent)`}>
+                  <Icon name={z.icon} class="size-5" />
+                </span>
+                <span class="flex-1 text-sm font-medium">{z.label}</span>
+                <span class="font-semibold tabular-nums">{fmt(z.ha)} <span class="text-sm text-white/60">ha</span></span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <a href="/nosotros#ubicacion" class="btn-leaf self-start" data-reveal="up" data-delay="200">Conoce el territorio <Icon name="chevron" class="size-4" /></a>
+      <p class="text-[0.65rem] text-white/45">Imagen satelital © Esri · Límites: iNaturalist · Ubicaciones aproximadas</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Las líneas avanzan alrededor del perímetro (un ciclo = 2 × (10 + 7) del dasharray). */
+  .march {
+    animation: march 1.2s linear infinite;
+  }
+  @keyframes march {
+    to {
+      stroke-dashoffset: -34;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .march {
+      animation: none;
+    }
+  }
+</style>

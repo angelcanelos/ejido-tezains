@@ -1,0 +1,35 @@
+---
+import Icon from "./Icon.astro";
+import { excerpt, formatDate, mediaUrl, type Noticia } from "../lib/noticias";
+
+interface Props {
+  post: Noticia;
+  delay?: number;
+}
+const { post, delay = 0 } = Astro.props;
+const { date, images } = post.data;
+const cover = images[0];
+const href = `/noticias#${post.id}`;
+---
+
+<article data-spotlight data-reveal="up" data-delay={delay} class="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-forest-900/5 transition duration-500 hover:-translate-y-1.5 hover:shadow-xl">
+  <a href={href} class="relative block aspect-[16/9] overflow-hidden bg-forest-950">
+    {
+      cover ? (
+        <img src={mediaUrl(cover.src)} alt={cover.alt} loading="lazy" class="size-full object-cover transition duration-700 group-hover:scale-110" />
+      ) : (
+        <img src="/images/logo.png" alt="" class="size-full object-contain p-10 opacity-60" />
+      )
+    }
+    {images.length > 1 && (
+      <span class="absolute top-3 right-3 rounded-full bg-forest-950/80 px-2.5 py-1 text-[0.7rem] font-semibold text-white backdrop-blur">+{images.length - 1} fotos</span>
+    )}
+  </a>
+  <div class="flex flex-1 flex-col p-5">
+    <time datetime={date.toISOString()} class="text-xs text-ink/50">{formatDate(date)}</time>
+    <p class="mt-2 line-clamp-4 text-sm leading-relaxed text-ink/80">{excerpt(post, 220)}</p>
+    <a href={href} class="mt-auto inline-flex items-center gap-1.5 pt-4 text-xs font-semibold text-leaf-600">
+      Ver publicación <Icon name="arrow" class="size-3.5 transition group-hover:translate-x-1" />
+    </a>
+  </div>
+</article>

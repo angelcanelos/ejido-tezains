@@ -1,0 +1,385 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  /* Las variables --font-* vienen de <Font /> (astro.config.mjs). */
+  --font-serif: var(--font-fraunces);
+  --font-sans: var(--font-inter);
+  --font-script: var(--font-caveat);
+  --font-display: var(--font-jakarta);
+  --font-hand: var(--font-kalam);
+
+  --color-lime-glow: #8fe36b;
+  --color-lime-deep: #4fbf3a;
+
+  --color-forest-950: #0b1f15;
+  --color-forest-900: #10291c;
+  --color-forest-800: #173826;
+  --color-forest-700: #1f4a32;
+  --color-forest-600: #2b6243;
+  --color-leaf-300: #a6d98c;
+  --color-leaf-400: #86c96a;
+  --color-leaf-500: #6cb84b;
+  --color-leaf-600: #559a37;
+  --color-cream: #f5f2e9;
+  --color-cream-200: #ece7d9;
+  --color-ink: #1d2a22;
+
+  /* Tokens estilo shadcn que usa src/components/ui/map.jsx */
+  --color-muted: #5b6a5e;
+  --color-background: #ffffff;
+  --color-foreground: #1d2a22;
+  --color-muted-foreground: #5b6a5e;
+  --color-border: rgb(29 42 34 / 0.12);
+  --color-popover: #ffffff;
+  --color-popover-foreground: #1d2a22;
+  --color-accent: #eef0e8;
+  --color-ring: #559a37;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-cream font-sans text-ink antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-serif;
+  }
+
+  /* Mapa (MapLibre) */
+  .maplibregl-popup-content {
+    @apply bg-transparent! shadow-none! p-0! rounded-none!;
+  }
+  .maplibregl-popup-tip {
+    @apply hidden!;
+  }
+  .maplibregl-ctrl-attrib {
+    @apply bg-background! text-muted-foreground! border-border! rounded-md! border! shadow-sm!;
+  }
+  .maplibregl-ctrl-attrib a {
+    @apply text-muted-foreground!;
+  }
+  .maplibregl-ctrl-attrib a:hover {
+    @apply text-foreground!;
+  }
+  .maplibregl-ctrl-attrib-button {
+    @apply bg-transparent!;
+  }
+}
+
+@utility container-x {
+  @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+@utility eyebrow {
+  @apply text-[0.7rem] font-semibold tracking-[0.2em] text-leaf-600 uppercase;
+}
+@utility btn {
+  @apply inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition duration-300;
+}
+@utility btn-leaf {
+  @apply btn bg-leaf-500 text-white shadow-lg shadow-leaf-500/25 hover:-translate-y-0.5 hover:bg-leaf-600;
+}
+@utility btn-dark {
+  @apply btn bg-forest-800 text-white hover:-translate-y-0.5 hover:bg-forest-700;
+}
+@utility btn-outline {
+  @apply btn border border-forest-800/20 bg-white/60 text-forest-800 hover:border-forest-800 hover:bg-white;
+}
+@utility topo {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' fill='none' stroke='%2386c96a' stroke-opacity='.08'%3E%3Cpath d='M0 200c60-40 120 40 200 0s140-60 200-20M0 240c60-40 120 40 200 0s140-60 200-20M0 160c60-40 120 40 200 0s140-60 200-20M0 120c60-40 120 40 200 0s140-60 200-20M0 280c60-40 120 40 200 0s140-60 200-20M0 80c60-40 120 40 200 0s140-60 200-20M0 320c60-40 120 40 200 0s140-60 200-20'/%3E%3C/svg%3E");
+}
+
+/* El header persiste entre páginas: se muestra sólo el estado nuevo (en vivo), sin la captura
+   congelada del anterior debajo, para que la píldora del menú no se vea duplicada. */
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+/* ---------- Animaciones de scroll ---------- */
+[data-reveal] {
+  opacity: 0;
+  transition:
+    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--delay, 0ms);
+}
+[data-reveal="up"] {
+  transform: translateY(40px);
+}
+[data-reveal="left"] {
+  transform: translateX(-50px);
+}
+[data-reveal="right"] {
+  transform: translateX(50px);
+}
+[data-reveal="zoom"] {
+  transform: scale(0.92);
+}
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Imagen que se "destapa" al entrar */
+[data-reveal="mask"] {
+  opacity: 1;
+  clip-path: inset(0 0 100% 0 round 1.5rem);
+  transition: clip-path 1.2s cubic-bezier(0.77, 0, 0.18, 1);
+  transition-delay: var(--delay, 0ms);
+}
+[data-reveal="mask"].is-visible {
+  clip-path: inset(0 0 0 0 round 1.5rem);
+}
+
+/* Subrayado manuscrito que se dibuja */
+.draw-line path {
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  transition: stroke-dashoffset 1.4s ease 0.6s;
+}
+.is-visible .draw-line path,
+.draw-line.is-visible path {
+  stroke-dashoffset: 0;
+}
+
+/* Entrada del hero al cargar */
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.hero-in > * {
+  opacity: 0;
+  animation: hero-in 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.hero-in > *:nth-child(1) { animation-delay: 0.1s; }
+.hero-in > *:nth-child(2) { animation-delay: 0.25s; }
+.hero-in > *:nth-child(3) { animation-delay: 0.4s; }
+.hero-in > *:nth-child(4) { animation-delay: 0.55s; }
+.hero-in > *:nth-child(5) { animation-delay: 0.7s; }
+
+/* Usa la propiedad `scale` (no `transform`): una animación con `transform` y relleno "both"
+   anula para siempre el translate del parallax, que se seguía calculando en cada frame sin efecto. */
+@keyframes slow-zoom {
+  from { scale: 1.12; }
+  to { scale: var(--zoom-to, 1); }
+}
+.slow-zoom {
+  animation: slow-zoom 2.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Capas de parallax en su propia capa de composición: moverlas no repinta la sección. */
+[data-parallax] {
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal="mask"],
+  .hero-in > *,
+  .slow-zoom {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+    scale: var(--zoom-to, 1) !important;
+    animation: none !important;
+    transition: none !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ---------- Hero ---------- */
+.hero-shade {
+  background:
+    radial-gradient(ellipse 70% 90% at 0% 50%, rgb(6 20 12 / 0.92) 0%, rgb(6 20 12 / 0.7) 40%, transparent 75%),
+    linear-gradient(to right, rgb(6 20 12 / 0.55), transparent 65%);
+}
+.hero-accent {
+  background: linear-gradient(100deg, #b4f08f 0%, var(--color-lime-glow) 40%, var(--color-lime-deep) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 28px rgb(143 227 107 / 0.25));
+}
+@utility btn-hero {
+  @apply inline-flex items-center gap-3 rounded-full px-7 py-3.5 font-display text-sm font-semibold text-forest-950 transition duration-300 hover:-translate-y-0.5;
+  background: linear-gradient(135deg, #a8ec82, var(--color-lime-deep));
+  box-shadow: 0 10px 30px -8px rgb(111 214 76 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.35);
+  &:hover {
+    box-shadow: 0 14px 36px -8px rgb(111 214 76 / 0.75), inset 0 1px 0 rgb(255 255 255 / 0.35);
+  }
+}
+@utility btn-ghost {
+  @apply inline-flex items-center gap-3 rounded-full border border-white/60 bg-white/5 px-7 py-3.5 font-display text-sm font-semibold text-white backdrop-blur-sm transition duration-300 hover:-translate-y-0.5 hover:border-white hover:bg-white/10;
+}
+
+/* ---------- Microinteracciones ---------- */
+::selection {
+  background: var(--color-leaf-400);
+  color: var(--color-forest-950);
+}
+
+/* Botones: se "pegan" al cursor y se hunden al presionar. */
+[data-magnetic] {
+  transform: translate(var(--tx, 0), var(--ty, 0));
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    translate 0.3s,
+    background-color 0.3s,
+    box-shadow 0.3s,
+    border-color 0.3s,
+    color 0.3s;
+}
+.btn,
+.btn-leaf,
+.btn-dark,
+.btn-outline,
+.btn-hero,
+.btn-ghost {
+  &:active {
+    scale: 0.96;
+  }
+  /* La flecha/chevron final avanza al pasar el cursor. */
+  & > svg:last-child {
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  &:hover > svg:last-child {
+    transform: translateX(3px);
+  }
+}
+
+/* Brillo suave que sigue al cursor dentro de una tarjeta. */
+[data-spotlight] {
+  position: relative;
+  isolation: isolate;
+  --spot: rgb(134 201 106 / 0.16);
+}
+[data-spotlight]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), var(--spot), transparent 65%);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+[data-spotlight]:hover::after {
+  opacity: 1;
+}
+
+/* Inclinación 3D en fotos. */
+[data-tilt] {
+  transform: perspective(900px) rotateX(var(--rx, 0)) rotateY(var(--ry, 0));
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Íconos que se mecen como un árbol con el viento. */
+@keyframes sway-icon {
+  0%, 100% { rotate: 0deg; }
+  25% { rotate: -9deg; }
+  60% { rotate: 6deg; }
+}
+.group:hover .sway-icon,
+.sway-icon:hover {
+  transform-origin: 50% 90%;
+  animation: sway-icon 0.9s ease-in-out;
+}
+
+/* Barra de progreso de lectura bajo el header. */
+.scroll-progress {
+  transform: scaleX(var(--p, 0));
+  transform-origin: left;
+}
+
+/* Línea de tiempo que se llena al hacer scroll. */
+[data-timeline]::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 1rem;
+  width: 2px;
+  height: 100%;
+  translate: -50% 0;
+  background: linear-gradient(var(--color-leaf-300), var(--color-leaf-500));
+  box-shadow: 0 0 12px rgb(134 201 106 / 0.6);
+  transform: scaleY(var(--fill, 0));
+  transform-origin: top;
+  @media (width >= 48rem) {
+    left: 50%;
+  }
+}
+[data-timeline-dot] {
+  transition:
+    scale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.4s,
+    box-shadow 0.4s;
+  background: var(--color-forest-700);
+}
+[data-timeline-dot].is-lit {
+  scale: 1.35;
+  background: var(--color-leaf-400);
+  box-shadow: 0 0 0 6px rgb(134 201 106 / 0.18);
+}
+
+/* Pulso en los marcadores principales del mapa. */
+@keyframes ping-soft {
+  from { transform: scale(1); opacity: 0.7; }
+  to { transform: scale(2.4); opacity: 0; }
+}
+.marker-pulse::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+  animation: ping-soft 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Aviso flotante (p. ej. "¡Enlace copiado!"). */
+@keyframes toast {
+  0% { opacity: 0; translate: -50% 4px; }
+  15%, 75% { opacity: 1; translate: -50% -6px; }
+  100% { opacity: 0; translate: -50% -12px; }
+}
+.toast {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  z-index: 20;
+  padding: 0.3rem 0.65rem;
+  border-radius: 9999px;
+  background: var(--color-forest-900);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: toast 1.8s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-magnetic],
+  [data-tilt] {
+    transform: none !important;
+  }
+  .sway-icon,
+  .marker-pulse::before {
+    animation: none !important;
+  }
+}

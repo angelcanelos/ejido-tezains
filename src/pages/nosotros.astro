@@ -1,0 +1,254 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHero from "../components/PageHero.astro";
+import Icon from "../components/Icon.astro";
+import RouteMap from "../components/RouteMap.astro";
+import { site, stats } from "../data/site";
+
+const timeline = [
+  { year: "1933", title: "Nace el ejido", text: "El 7 de julio de 1933, por Resolución Presidencial, se dota de tierras al Ejido San Diego de Tezains en Santiago Papasquiaro, Durango." },
+  { year: "1967", title: "Inicia el aprovechamiento forestal", text: "Tras levantarse la veda regional, el ejido comienza el aprovechamiento comercial de sus bosques con planes de manejo técnico." },
+  { year: "Industria propia", title: "Forestal Tezains", text: "El ejido asume la extracción, el aserrío y la comercialización de su madera, generando más de 200 empleos para la región." },
+  { year: "FSC", title: "Certificación internacional", text: "Evaluaciones de Rainforest Alliance (SmartWood) certifican el buen manejo del bosque bajo el estándar FSC (FSC-C009161)." },
+  { year: "2025", title: "Bonos de carbono y tecnología", text: "El Gobierno de Durango presenta el modelo de bonos de carbono del ejido como ejemplo nacional; se suman cámaras con IA contra incendios." },
+  { year: "2026", title: "Reconocimiento nacional", text: "San Diego de Tezains destaca en la Feria Nacional Forestal 2026 por su conservación, bonos de carbono y uso de tecnología." },
+];
+
+const pines = [
+  ["Pinus ponderosa", "Pino ponderosa"],
+  ["Pinus arizonica", "Pino de Arizona"],
+  ["Pinus leiophylla", "Pino chino"],
+  ["Pinus ayacahuite", "Ayacahuite"],
+  ["Pinus cooperi", "Pino de Cooper"],
+  ["Pinus cembroides", "Piñonero"],
+  ["Pinus greggii", "Pino prieto"],
+  ["Quercus spp.", "Encinos"],
+];
+
+const fauna = ["Águila real", "Venado cola blanca", "Lince", "Guajolote silvestre", "Cotorra serrana", "Pájaro carpintero", "Búho", "Víbora de cascabel"];
+
+const communities = [
+  { name: "San Diego", text: "Poblado principal y sede del ejido. Recibe agua gracias al sistema de bombeo de 5 km financiado con bonos de carbono." },
+  { name: "La Teodora", text: "Comunidad beneficiada por el proyecto de captura de carbono." },
+  { name: "El Susto", text: "Comunidad serrana que participa en el cuidado y vigilancia del bosque." },
+  { name: "Chamacueros", text: "Comunidad integrada al proyecto de bonos de carbono del ejido." },
+];
+
+const land = [
+  { label: "Producción maderable", ha: stats.maderable, pct: Math.round((stats.maderable / 60801.92) * 100), color: "bg-leaf-500" },
+  { label: "Bosque de conservación y reservas", ha: stats.conservacion, pct: Math.round((stats.conservacion / 60801.92) * 100), color: "bg-leaf-300" },
+  { label: "Otros usos", ha: 13597, pct: Math.round((13597 / 60801.92) * 100), color: "bg-amber-500" },
+];
+---
+
+<Layout title="Nosotros" description="Historia, organización, biodiversidad y comunidades del Ejido San Diego de Tezains, Santiago Papasquiaro, Durango.">
+  <PageHero
+    eyebrow="Nosotros"
+    title="Más de 90 años cuidando la sierra"
+    subtitle={`${stats.ejidatarios} ejidatarios, cuatro comunidades y un bosque de más de 60 mil hectáreas en la Sierra Madre Occidental.`}
+    image="/images/impacto.jpg"
+  />
+
+  <!-- Quiénes somos -->
+  <section class="py-20 sm:py-28">
+    <div class="container-x grid items-center gap-14 lg:grid-cols-2">
+      <div class="overflow-hidden rounded-3xl shadow-2xl shadow-forest-900/20" data-reveal="mask">
+        <img src="/images/valor-bosque.jpg" alt="Bosque de pino junto a un río" loading="lazy" class="aspect-[5/4] w-full object-cover" />
+      </div>
+      <div>
+        <p class="eyebrow" data-reveal="up">Quiénes somos</p>
+        <h2 class="mt-3 text-3xl leading-tight font-semibold text-forest-900 sm:text-4xl" data-reveal="up" data-delay="100">Una comunidad que vive del bosque y para el bosque</h2>
+        <div class="mt-5 space-y-4 leading-relaxed text-ink/70" data-reveal="up" data-delay="150">
+          <p>
+            El Ejido San Diego de Tezains se ubica en el municipio de {site.municipio}, al noroeste del estado de {site.estado}, en plena Sierra Madre Occidental. Su superficie legalmente reconocida es de <strong class="text-forest-900">60,097.60 hectáreas</strong> de bosque templado de pino-encino.
+          </p>
+          <p>
+            La asamblea de ejidatarios es la máxima autoridad. Desde ella se toman las decisiones sobre el manejo del bosque, la empresa forestal y las obras comunitarias, con una visión de largo plazo: aprovechar sin agotar.
+          </p>
+        </div>
+        <dl class="mt-8 grid grid-cols-3 gap-4" data-reveal="up" data-delay="250">
+          <div class="rounded-2xl bg-white p-4 ring-1 ring-forest-900/5">
+            <dd class="font-serif text-2xl font-semibold text-forest-800"><span data-count={stats.ejidatarios}>0</span></dd>
+            <dt class="text-xs text-ink/60">ejidatarios</dt>
+          </div>
+          <div class="rounded-2xl bg-white p-4 ring-1 ring-forest-900/5">
+            <dd class="font-serif text-2xl font-semibold text-forest-800">+<span data-count="200">0</span></dd>
+            <dt class="text-xs text-ink/60">empleos</dt>
+          </div>
+          <div class="rounded-2xl bg-white p-4 ring-1 ring-forest-900/5">
+            <dd class="font-serif text-2xl font-semibold text-forest-800"><span data-count="4">0</span></dd>
+            <dt class="text-xs text-ink/60">comunidades</dt>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- Línea de tiempo -->
+  <section class="topo bg-forest-950 py-20 text-white sm:py-28">
+    <div class="container-x">
+      <p class="eyebrow !text-leaf-400" data-reveal="up">Nuestra historia</p>
+      <h2 class="mt-3 text-3xl font-semibold sm:text-4xl" data-reveal="up" data-delay="100">Un camino de trabajo y conservación</h2>
+      <ol data-timeline class="relative mt-14 space-y-12 before:absolute before:inset-y-0 before:left-4 before:w-px before:bg-leaf-400/30 md:before:left-1/2">
+        {
+          timeline.map((t, i) => (
+            <li class:list={["relative grid gap-4 pl-12 md:grid-cols-2 md:gap-16 md:pl-0"]}>
+              <span data-timeline-dot class="absolute top-1 left-4 z-10 grid size-4 -translate-x-1/2 place-items-center rounded-full ring-4 ring-forest-950 md:left-1/2" />
+              <div
+                class:list={[i % 2 ? "md:col-start-2" : "md:text-right"]}
+                data-reveal={i % 2 ? "right" : "left"}
+              >
+                <p class="font-script text-3xl text-leaf-300">{t.year}</p>
+                <h3 class="mt-1 text-xl font-semibold">{t.title}</h3>
+                <p class="mt-2 text-sm leading-relaxed text-white/70">{t.text}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- Uso del territorio -->
+  <section class="py-20 sm:py-28">
+    <div class="container-x grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:items-center">
+      <div>
+        <p class="eyebrow" data-reveal="up">Manejo del territorio</p>
+        <h2 class="mt-3 text-3xl font-semibold text-forest-900 sm:text-4xl" data-reveal="up" data-delay="100">Cada hectárea tiene un propósito</h2>
+        <p class="mt-4 leading-relaxed text-ink/70" data-reveal="up" data-delay="150">
+          El levantamiento fotogramétrico registra 60,801.92 hectáreas. El plan de manejo divide el territorio entre áreas de producción, reservas estrictas de conservación y otros usos como agricultura de temporal, ganadería familiar y asentamientos.
+        </p>
+      </div>
+      <ul class="space-y-6">
+        {
+          land.map((l, i) => (
+            <li data-reveal="up" data-delay={i * 120}>
+              <div class="flex justify-between text-sm">
+                <span class="font-medium text-forest-900">{l.label}</span>
+                <span class="text-ink/60">{l.ha.toLocaleString("es-MX")} ha · {l.pct}%</span>
+              </div>
+              <div class="mt-2 h-3 overflow-hidden rounded-full bg-cream-200">
+                <div class:list={["bar h-full rounded-full", l.color]} style={`--w:${l.pct}%`} />
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Biodiversidad -->
+  <section id="biodiversidad" class="bg-white py-20 sm:py-28">
+    <div class="container-x">
+      <div class="max-w-2xl">
+        <p class="eyebrow" data-reveal="up">Biodiversidad</p>
+        <h2 class="mt-3 text-3xl font-semibold text-forest-900 sm:text-4xl" data-reveal="up" data-delay="100">El "Nido del águila real"</h2>
+        <p class="mt-4 text-ink/70" data-reveal="up" data-delay="150">
+          Nuestro bosque de pino-encino es hogar de una enorme variedad de especies. Conservarlas es parte central del plan de manejo forestal.
+        </p>
+      </div>
+      <div class="mt-12 grid gap-6 lg:grid-cols-3">
+        <figure class="group relative overflow-hidden rounded-3xl lg:row-span-2" data-reveal="zoom">
+          <img src="/images/galeria-aguila.jpg" alt="Águila real volando sobre la sierra" loading="lazy" class="size-full min-h-80 object-cover transition duration-700 group-hover:scale-105" />
+          <figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-forest-950/90 to-transparent p-6 text-white">
+            <p class="font-script text-2xl text-leaf-300">Aquila chrysaetos</p>
+            <p class="text-sm text-white/80">El águila real anida en nuestra sierra.</p>
+          </figcaption>
+        </figure>
+        <div class="rounded-3xl bg-cream p-7" data-reveal="up" data-delay="100">
+          <h3 class="flex items-center gap-2 text-xl font-semibold text-forest-900"><Icon name="pine" class="size-6 text-leaf-600" /> Flora</h3>
+          <ul class="mt-4 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
+            {pines.map(([sci, common]) => <li><span class="font-medium text-forest-900">{common}</span> <em class="block text-xs text-ink/50">{sci}</em></li>)}
+          </ul>
+        </div>
+        <div class="rounded-3xl bg-forest-900 p-7 text-white" data-reveal="up" data-delay="200">
+          <h3 class="flex items-center gap-2 text-xl font-semibold"><Icon name="bird" class="size-6 text-leaf-400" /> Fauna</h3>
+          <ul class="mt-4 flex flex-wrap gap-2">
+            {fauna.map((f) => <li class="cursor-default rounded-full bg-white/10 px-3 py-1.5 text-xs transition duration-300 hover:-translate-y-0.5 hover:bg-leaf-500 hover:text-forest-950">{f}</li>)}
+          </ul>
+        </div>
+        <div class="grid grid-cols-2 gap-6 lg:col-span-2">
+          <img src="/images/galeria-venado.jpg" alt="Cervatillo en el bosque" loading="lazy" class="aspect-[4/3] w-full rounded-3xl object-cover" data-reveal="up" data-delay="100" />
+          <img src="/images/galeria-encino.jpg" alt="Encino entre pinos" loading="lazy" class="aspect-[4/3] w-full rounded-3xl object-cover" data-reveal="up" data-delay="200" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comunidades -->
+  <section id="comunidades" class="py-20 sm:py-28">
+    <div class="container-x">
+      <p class="eyebrow" data-reveal="up">Nuestras comunidades</p>
+      <h2 class="mt-3 text-3xl font-semibold text-forest-900 sm:text-4xl" data-reveal="up" data-delay="100">Cuatro pueblos, un solo bosque</h2>
+      <div class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          communities.map((c, i) => (
+            <article data-spotlight class="group rounded-2xl bg-white p-6 ring-1 ring-forest-900/5 transition duration-500 hover:-translate-y-1.5 hover:bg-forest-900 hover:text-white hover:shadow-xl" data-reveal="up" data-delay={i * 110}>
+              <span class="grid size-11 place-items-center rounded-xl bg-leaf-500/10 text-forest-700 transition group-hover:bg-leaf-500 group-hover:text-white">
+                <Icon name="pin" class="size-5 transition duration-500 group-hover:-translate-y-1" />
+              </span>
+              <h3 class="mt-4 text-xl font-semibold">{c.name}</h3>
+              <p class="mt-2 text-sm text-ink/65 transition group-hover:text-white/75">{c.text}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Logros -->
+  <section class="relative isolate overflow-hidden bg-forest-950 py-20 text-white sm:py-24">
+    <img src="/images/brigada.jpg" alt="" loading="lazy" class="absolute inset-x-0 -top-1/4 -z-10 h-[150%] w-full object-cover opacity-30" data-parallax="0.15" />
+    <div class="container-x">
+      <p class="eyebrow !text-leaf-400" data-reveal="up">Logros</p>
+      <h2 class="mt-3 text-3xl font-semibold sm:text-4xl" data-reveal="up" data-delay="100">Lo que nos distingue</h2>
+      <div class="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {
+          [
+            { icon: "award", title: "Certificación FSC", text: "Manejo forestal verificado de forma independiente. Código FSC-C009161." },
+            { icon: "cloud", title: "Bonos de carbono", text: "Modelo reconocido por el Gobierno de Durango como ejemplo nacional." },
+            { icon: "camera", title: "Cámaras con IA", text: "Detección temprana de incendios con alertas inmediatas al celular." },
+            { icon: "sprout", title: "Reforestación", text: "Meta de 110,000 árboles en 100 hectáreas junto con CICEANA." },
+          ].map((a, i) => (
+            <div data-spotlight style="--spot: rgb(190 242 100 / .14)" class="group rounded-2xl border border-white/10 bg-forest-900/80 p-6 transition duration-500 hover:border-leaf-400/40" data-reveal="up" data-delay={i * 110}>
+              <Icon name={a.icon as any} class="sway-icon size-8 text-leaf-400" />
+              <h3 class="mt-4 font-sans text-lg font-semibold">{a.title}</h3>
+              <p class="mt-2 text-sm text-white/70">{a.text}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Ubicación -->
+  <section id="ubicacion" class="py-20 sm:py-28">
+    <div class="container-x grid gap-10 lg:grid-cols-[1fr_1.6fr] lg:items-center">
+      <div>
+        <p class="eyebrow" data-reveal="up">Ubicación</p>
+        <h2 class="mt-3 text-3xl font-semibold text-forest-900 sm:text-4xl" data-reveal="up" data-delay="100">Dónde estamos</h2>
+        <p class="mt-4 text-ink/70" data-reveal="up" data-delay="150">
+          Sierra Madre Occidental, municipio de {site.municipio}, {site.estado}. Coordenadas aproximadas: 24°48'–25°13' N y 105°53'–106°12' O.
+        </p>
+        <ul class="mt-6 space-y-3 text-sm" data-reveal="up" data-delay="200">
+          <li class="flex gap-3"><Icon name="phone" class="size-5 text-leaf-600" /><a href={site.phoneHref} class="hover:text-leaf-600">{site.phone}</a></li>
+          <li class="flex gap-3"><Icon name="mail" class="size-5 text-leaf-600" /><a href={`mailto:${site.email}`} class="hover:text-leaf-600">{site.email}</a></li>
+          <li class="flex gap-3"><Icon name="facebook" class="size-5 text-leaf-600" /><a href={site.facebook} target="_blank" rel="noopener" class="hover:text-leaf-600">facebook.com/tezains</a></li>
+        </ul>
+      </div>
+      <div class="overflow-hidden rounded-3xl shadow-xl ring-1 ring-forest-900/10" data-reveal="zoom">
+        <RouteMap />
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .bar {
+    width: 0;
+    transition: width 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0.3s;
+  }
+  :global(.is-visible) .bar {
+    width: var(--w);
+  }
+</style>

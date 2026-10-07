@@ -1,0 +1,269 @@
+---
+import Logo from "./Logo.astro";
+import Icon from "./Icon.astro";
+import HeaderNav from "./HeaderNav.jsx";
+import { nav, site } from "../data/site";
+
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const navKey = (href: string) => href.replace(/^\//, "") || "inicio";
+const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
+---
+
+<!-- Nombre propio y sin animación: así el header queda fuera del fundido de página y no parpadea. -->
+<header id="site-header" transition:persist transition:name="site-header" transition:animate="none" class="fixed inset-x-0 top-0 z-50 pt-4">
+  <div class="container-x">
+    <div class="flex items-center justify-between gap-6 rounded-[20px] bg-white px-5 py-3 shadow-[0_24px_48px_-16px_rgb(11_31_21/0.18)]">
+      <Logo />
+
+      <div class="hidden lg:block" role="navigation" aria-label="Principal">
+        <HeaderNav client:load items={nav} currentPath={Astro.url.pathname} />
+      </div>
+
+      <div class="hidden shrink-0 items-center gap-5 lg:flex">
+        <a class="hidden items-center gap-2.5 text-sm font-bold whitespace-nowrap text-ink xl:flex" href={site.phoneHref}>
+          <span class="flex size-[38px] shrink-0 items-center justify-center rounded-full bg-forest-900 text-leaf-400" aria-hidden="true">
+            <Icon name="phone" class="size-4" />
+          </span>
+          <span>
+            <small class="block text-[11px] font-medium text-muted">Llámanos</small>
+            {site.phone}
+          </span>
+        </a>
+        <a href="/nosotros" class="btn-leaf whitespace-nowrap">
+          Conoce el ejido <Icon name="chevron" class="size-4" />
+        </a>
+      </div>
+
+      <div class="flex shrink-0 items-center gap-2.5 lg:hidden">
+        <a class="flex size-10 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-white" href={site.phoneHref} aria-label={`Llamar al ${site.name}`}>
+          <Icon name="phone" class="size-[18px]" />
+        </a>
+        <button
+          class="menu-toggle flex size-10 cursor-pointer flex-col justify-center gap-[5px] rounded-[10px] border border-forest-900/10 bg-white transition-transform duration-150 active:scale-95"
+          id="menu-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="mobile-nav"
+        >
+          <span class="bar mx-auto block h-0.5 w-[18px] rounded-full bg-ink"></span>
+          <span class="bar mx-auto block h-0.5 w-[18px] rounded-full bg-ink"></span>
+          <span class="bar mx-auto block h-0.5 w-[18px] rounded-full bg-ink"></span>
+          <span class="sr-only">Abrir menú</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mobile-backdrop lg:hidden" id="mobile-backdrop" aria-hidden="true"></div>
+
+  <nav class="mobile-nav lg:hidden" id="mobile-nav" aria-label="Móvil">
+    <ul class="mx-4 mt-2 flex flex-col gap-1 rounded-[20px] bg-white p-3 shadow-[0_24px_48px_-16px_rgb(11_31_21/0.18)] sm:mx-6">
+      {
+        nav.map((item, i) => (
+          <li style={`--i:${i}`}>
+            <a
+              class="mobile-link flex items-center justify-between rounded-xl px-4 py-3.5 font-semibold text-ink transition-colors duration-150 active:bg-leaf-500/10"
+              href={item.href}
+              data-nav-key={navKey(item.href)}
+              aria-current={isActive(item.href) ? "page" : undefined}
+            >
+              {item.label}
+              <Icon name="chevron" class="size-4 opacity-40" />
+            </a>
+          </li>
+        ))
+      }
+      <li style={`--i:${nav.length}`}>
+        <a class="btn-leaf mt-2 w-full justify-center" href="/nosotros">Conoce el ejido</a>
+      </li>
+    </ul>
+  </nav>
+
+  <span data-progress class="scroll-progress" aria-hidden="true"></span>
+  <div class="nav-progress" id="nav-progress" aria-hidden="true"></div>
+</header>
+
+<style>
+  /* Menú móvil: aparece con un fundido y los elementos entran escalonados. */
+  .mobile-nav {
+    position: relative;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scale(0.98);
+    transform-origin: top center;
+    transition:
+      opacity 200ms ease,
+      transform 260ms cubic-bezier(0.23, 1, 0.32, 1),
+      visibility 0s linear 260ms;
+  }
+  .mobile-nav li {
+    opacity: 0;
+    transform: translateY(-6px);
+    transition:
+      opacity 220ms ease,
+      transform 280ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  #site-header[data-menu-open] .mobile-nav {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity 200ms ease,
+      transform 260ms cubic-bezier(0.23, 1, 0.32, 1),
+      visibility 0s;
+  }
+  #site-header[data-menu-open] .mobile-nav li {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(var(--i) * 35ms + 40ms);
+  }
+
+  .mobile-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: rgb(11 31 21 / 0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 220ms ease;
+  }
+  #site-header[data-menu-open] .mobile-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Página actual en el menú móvil. */
+  .mobile-link[aria-current="page"] {
+    background: color-mix(in srgb, var(--color-leaf-500) 12%, transparent);
+    color: var(--color-leaf-600);
+  }
+  .mobile-link[aria-current="page"] svg {
+    opacity: 1;
+  }
+
+  /* La hamburguesa se convierte en X. */
+  .menu-toggle .bar {
+    transition:
+      transform 240ms cubic-bezier(0.23, 1, 0.32, 1),
+      opacity 160ms ease;
+  }
+  #site-header[data-menu-open] .menu-toggle .bar:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  #site-header[data-menu-open] .menu-toggle .bar:nth-child(2) {
+    opacity: 0;
+  }
+  #site-header[data-menu-open] .menu-toggle .bar:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  /* Progreso de lectura: línea fina pegada al borde superior. */
+  .scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(to right, var(--color-leaf-400), var(--color-lime-glow));
+    pointer-events: none;
+  }
+
+  /* Barra de carga al cambiar de página, para que un toque visiblemente "haga algo". */
+  .nav-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background: var(--color-leaf-600);
+    box-shadow: 0 0 8px rgb(85 154 55 / 0.6);
+    transform: scaleX(0);
+    transform-origin: left;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .nav-progress[data-state="loading"] {
+    opacity: 1;
+    transform: scaleX(0.75);
+    transition:
+      transform 1.6s cubic-bezier(0.1, 0.7, 0.2, 1),
+      opacity 100ms ease;
+  }
+  .nav-progress[data-state="done"] {
+    opacity: 0;
+    transform: scaleX(1);
+    transition:
+      transform 200ms ease,
+      opacity 300ms ease 180ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-nav,
+    .mobile-nav li,
+    .mobile-backdrop,
+    .menu-toggle .bar {
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  const header = document.getElementById("site-header");
+  const toggle = document.getElementById("menu-toggle");
+  const backdrop = document.getElementById("mobile-backdrop");
+  const nav = document.getElementById("mobile-nav");
+  const progress = document.getElementById("nav-progress");
+
+  function currentKey() {
+    const path = window.location.pathname.replace(/\/$/, "") || "/";
+    return path === "/" ? "inicio" : path.split("/")[1];
+  }
+
+  function markCurrent() {
+    const key = currentKey();
+    nav?.querySelectorAll<HTMLAnchorElement>("[data-nav-key]").forEach((a) => {
+      if (a.dataset.navKey === key) a.setAttribute("aria-current", "page");
+      else a.removeAttribute("aria-current");
+    });
+  }
+
+  function setOpen(open: boolean) {
+    if (!header || !toggle) return;
+    if (open) {
+      markCurrent();
+      header.setAttribute("data-menu-open", "");
+    } else {
+      header.removeAttribute("data-menu-open");
+    }
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.querySelector(".sr-only")!.textContent = open ? "Cerrar menú" : "Abrir menú";
+  }
+
+  toggle?.addEventListener("click", () => setOpen(!header?.hasAttribute("data-menu-open")));
+  backdrop?.addEventListener("click", () => setOpen(false));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") setOpen(false);
+  });
+
+  // Al tocar un enlace: se marca de inmediato y el menú se cierra, para que la elección se note.
+  nav?.addEventListener("click", (e) => {
+    const link = (e.target as HTMLElement).closest("a");
+    if (!link) return;
+    nav.querySelectorAll("[aria-current]").forEach((a) => a.removeAttribute("aria-current"));
+    if (link.dataset.navKey) link.setAttribute("aria-current", "page");
+    setTimeout(() => setOpen(false), 120);
+  });
+
+  // Barra de carga (el header persiste entre navegaciones del ClientRouter).
+  document.addEventListener("astro:before-preparation", () => {
+    if (!progress) return;
+    progress.removeAttribute("data-state");
+    void progress.offsetWidth;
+    progress.dataset.state = "loading";
+  });
+  document.addEventListener("astro:page-load", () => {
+    setOpen(false);
+    if (progress?.dataset.state === "loading") progress.dataset.state = "done";
+  });
+</script>

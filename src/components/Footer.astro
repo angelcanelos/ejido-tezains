@@ -1,0 +1,175 @@
+---
+import Logo from "./Logo.astro";
+import Icon from "./Icon.astro";
+import { nav, site } from "../data/site";
+const year = new Date().getFullYear();
+
+const links = [
+  { title: "Explora", items: nav.map((n) => ({ ...n, external: false })) },
+  {
+    title: "El ejido",
+    items: [
+      { label: "Sobre nosotros", href: "/#nosotros", external: false },
+      { label: "Territorio", href: "/#territorio", external: false },
+      { label: "Contacto", href: "#contacto", external: false },
+    ],
+  },
+  {
+    title: "Enlaces",
+    items: [
+      { label: "Forestal Tezains", href: site.forestal, external: true },
+      { label: "Facebook", href: site.facebook, external: true },
+    ],
+  },
+];
+
+const social = [
+  { label: "Correo", href: `mailto:${site.email}`, icon: "mail" },
+  { label: "Facebook", href: site.facebook, icon: "facebook" },
+  { label: "Teléfono", href: site.phoneHref, icon: "phone" },
+] as const;
+---
+
+<!-- Marca el final del contenido: a partir de aquí el pie empieza a descubrirse. -->
+<div data-footer-edge aria-hidden="true"></div>
+<footer id="contacto" class="footer-reveal relative isolate text-white">
+  <img
+    data-paisaje
+    src="/paisaje.svg"
+    alt=""
+    width="2800"
+    height="560"
+    loading="lazy"
+    decoding="async"
+    class="block h-64 w-full object-cover object-bottom sm:h-80 lg:h-[clamp(16rem,calc(100svh-25rem),34rem)]"
+  />
+
+  <div class="relative -mt-px bg-forest-950">
+    <div class="container-x grid grid-cols-2 gap-10 pt-2 pb-12 sm:grid-cols-3 lg:grid-cols-[1fr_1fr_1fr_auto_1.2fr] lg:items-start">
+      {
+        links.map((col) => (
+          <nav aria-label={col.title}>
+            <h2 class="inline-block border-b-2 border-leaf-400/70 pr-10 pb-2 font-display text-base font-bold">{col.title}</h2>
+            <ul class="mt-5 space-y-2.5 text-sm text-white/75">
+              {col.items.map((item) => (
+                <li>
+                  <a
+                    href={item.href}
+                    class="inline-flex items-center gap-1.5 transition hover:text-leaf-400"
+                    {...(item.external ? { target: "_blank", rel: "noopener" } : {})}
+                  >
+                    {item.label}
+                    {item.external && <Icon name="external" class="size-3.5 opacity-60" />}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))
+      }
+
+      <div class="col-span-2 flex gap-3 sm:col-span-3 lg:col-span-1 lg:self-center">
+        {
+          social.map((s) => (
+            <a
+              href={s.href}
+              aria-label={s.label}
+              data-magnetic
+              class="grid size-11 place-items-center rounded-full border-2 border-white/70 transition hover:-translate-y-0.5 hover:border-leaf-400 hover:bg-leaf-500 hover:text-forest-950"
+              {...(s.icon === "facebook" ? { target: "_blank", rel: "noopener" } : {})}
+            >
+              <Icon name={s.icon} class="size-4" />
+            </a>
+          ))
+        }
+      </div>
+
+      <address class="col-span-2 flex flex-col gap-2 text-sm not-italic text-white/80 sm:col-span-3 lg:col-span-1 lg:items-end lg:text-right">
+        <p class="font-display text-xl font-extrabold text-white">Ejido San Diego de Tezains</p>
+        <p class="flex items-center gap-2 lg:flex-row-reverse"><Icon name="pin" class="size-4 shrink-0 text-leaf-400" /> {site.municipio}, {site.estado}, México</p>
+        <a href={site.phoneHref} class="flex items-center gap-2 transition hover:text-leaf-400 lg:flex-row-reverse"><Icon name="phone" class="size-4 shrink-0 text-leaf-400" /> Tel.: {site.phone}</a>
+        <a href={`mailto:${site.email}`} class="flex items-center gap-2 break-all transition hover:text-leaf-400 lg:flex-row-reverse"><Icon name="mail" class="size-4 shrink-0 text-leaf-400" /> {site.email}</a>
+      </address>
+    </div>
+
+    <div class="container-x">
+      <div class="flex flex-col gap-5 border-t border-white/10 py-6 md:flex-row md:items-center md:justify-between">
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <Logo class="[&_img]:h-11 sm:[&_img]:h-12" />
+          <p class="font-script text-2xl leading-tight text-leaf-300">Bosques hoy, vida mañana.</p>
+        </div>
+        <p class="text-xs leading-relaxed text-white/45 md:text-right">
+          © {year} Ejido San Diego de Tezains. Todos los derechos reservados.<br class="hidden md:block" />
+          Fotografías de dominio público y licencias abiertas (ver CREDITOS.md).
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  /* Sticky footer: el contenido se desliza hacia arriba y descubre el pie, que se queda fijo.
+     Sólo cuando el pie cabe completo debajo del header (lo decide el script); si no, se
+     comporta normal y se ve entero al hacer scroll. */
+  .footer-reveal[data-sticky] {
+    position: sticky;
+    bottom: 0;
+    z-index: 0;
+  }
+
+  /* El paisaje es un SVG con animaciones infinitas. Como el pie sticky está siempre detrás de la
+     página, el navegador lo redibujaba en cada frame del scroll aunque no se viera; mientras
+     está tapado no se pinta. */
+  .footer-reveal[data-covered] [data-paisaje] {
+    visibility: hidden;
+  }
+</style>
+
+<script>
+  let observer: IntersectionObserver | null = null;
+  let sizeObserver: ResizeObserver | null = null;
+
+  /** Sticky sólo en escritorio y si el pie completo cabe en la pantalla bajo el header flotante. */
+  function updateSticky(footer: HTMLElement) {
+    const header = document.getElementById("site-header")?.offsetHeight ?? 0;
+    const fits = footer.offsetHeight + header <= window.innerHeight;
+    footer.toggleAttribute("data-sticky", window.innerWidth >= 1024 && fits);
+  }
+
+  // El módulo vive toda la sesión (ClientRouter): un solo listener que usa el pie actual.
+  window.addEventListener(
+    "resize",
+    () => {
+      const footer = document.querySelector<HTMLElement>(".footer-reveal");
+      if (footer) updateSticky(footer);
+    },
+    { passive: true },
+  );
+
+  document.addEventListener("astro:page-load", () => {
+    observer?.disconnect();
+    sizeObserver?.disconnect();
+    const edge = document.querySelector("[data-footer-edge]");
+    const footer = document.querySelector<HTMLElement>(".footer-reveal");
+    if (!footer) return;
+
+    // El alto del pie cambia con el ancho (la ilustración mantiene su proporción) y la ventana con el alto.
+    updateSticky(footer);
+    if ("ResizeObserver" in window) {
+      sizeObserver = new ResizeObserver(() => updateSticky(footer));
+      sizeObserver.observe(footer);
+    }
+
+    if (!edge || !("IntersectionObserver" in window)) return;
+
+    // Visible desde un poco antes de que el borde llegue a la pantalla, para que ya esté animado.
+    observer = new IntersectionObserver(
+      ([entry]) => {
+        const covered = !entry.isIntersecting && entry.boundingClientRect.top > 0;
+        footer.toggleAttribute("data-covered", covered);
+      },
+      { rootMargin: "0px 0px 300px 0px" },
+    );
+    observer.observe(edge);
+  });
+</script>

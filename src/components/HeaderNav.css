@@ -1,0 +1,67 @@
+/*
+  Tema claro de GooeyNav dentro del header: texto oscuro sobre la tarjeta blanca, botón activo
+  y burbujas verde hoja. La fusión "gooey" usa un filtro SVG (ver HeaderNav.jsx) en lugar del
+  truco de contraste blanco/negro, así el verde conserva su color exacto.
+*/
+.site-nav {
+  --color-1: var(--color-leaf-600);
+  --color-2: var(--color-leaf-500);
+  --color-3: var(--color-leaf-600);
+  --color-4: var(--color-leaf-400);
+}
+
+.site-nav .gooey-nav-container {
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+}
+
+.site-nav .gooey-nav-container nav ul {
+  gap: 4px;
+  padding: 0;
+  color: var(--color-ink);
+  text-shadow: none;
+}
+
+.site-nav .gooey-nav-container nav ul li {
+  color: var(--color-ink);
+  border-radius: 12px;
+}
+
+.site-nav .gooey-nav-container nav ul li a {
+  padding: 0.75em 1.3em;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.site-nav .gooey-nav-container nav ul li:focus-within:has(:focus-visible) {
+  box-shadow: 0 0 0 2px var(--color-forest-900);
+}
+
+.site-nav .gooey-nav-container nav ul li::after {
+  background: var(--color-leaf-600);
+  border-radius: 12px;
+}
+
+.site-nav .gooey-nav-container nav ul li.active {
+  color: #fff;
+}
+
+.site-nav .gooey-nav-container .effect.text,
+.site-nav .gooey-nav-container .effect.text.active {
+  color: #fff;
+}
+
+.site-nav .gooey-nav-container .effect.filter {
+  filter: url(#gooey-nav-filter);
+  mix-blend-mode: normal;
+}
+
+.site-nav .gooey-nav-container .effect.filter::before {
+  display: none;
+}
+
+.site-nav .gooey-nav-container .effect.filter::after {
+  background: var(--color-leaf-600);
+  border-radius: 12px;
+}

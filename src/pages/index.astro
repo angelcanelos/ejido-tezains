@@ -1,0 +1,313 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Icon from "../components/Icon.astro";
+import NewsCard from "../components/NewsCard.astro";
+import TerritoryMap from "../components/TerritoryMap.astro";
+import { getNoticias } from "../lib/noticias";
+import { site, stats } from "../data/site";
+
+const latest = (await getNoticias()).slice(0, 3);
+const yearsManaging = new Date().getFullYear() - 1967;
+
+const pillars = [
+  { icon: "community", label: "Comunidad\norganizada" },
+  { icon: "tree", label: "Manejo forestal\nsustentable" },
+  { icon: "coin", label: "Desarrollo\neconómico local" },
+  { icon: "leaf", label: "Conservación de\nla biodiversidad" },
+] as const;
+
+const values = [
+  { icon: "pine", label: "Producción forestal legal y responsable" },
+  { icon: "bird", label: "Conservación de la biodiversidad" },
+  { icon: "cloud", label: "Captura de carbono y regulación climática" },
+  { icon: "drop", label: "Protección de cuencas hídricas" },
+] as const;
+
+const services = [
+  { img: "/images/servicio-maderable.jpg", icon: "truck", title: "Aprovechamiento forestal maderable", text: "Pino y encino certificados FSC, procesados en nuestros propios aserraderos." },
+  { img: "/images/servicio-reforestacion.jpg", icon: "sprout", title: "Reforestación y restauración", text: "Viveros y plantaciones para recuperar áreas y asegurar el bosque del futuro." },
+  { img: "/images/servicio-resina.jpg", icon: "resin", title: "Bosque de pino-encino", text: "Siete especies de pino manejadas con planes técnicos de largo plazo." },
+  { img: "/images/servicio-ecoturismo.jpg", icon: "mountain", title: "Turismo de naturaleza", text: "El Paraíso de San Diego: cabañas, pesca de trucha y paisajes de la sierra." },
+  { img: "/images/servicio-no-maderables.jpg", icon: "cone", title: "Productos forestales no maderables", text: "Semilla, piña, astilla y carbón: el bosque aprovechado de forma integral." },
+] as const;
+
+const gallery = [
+  { src: "/images/galeria-sendero.jpg", alt: "Río entre pinos nevados" },
+  { src: "/images/galeria-venado.jpg", alt: "Cervatillo en el bosque" },
+  { src: "/images/galeria-montana.jpg", alt: "Atardecer sobre la sierra" },
+  { src: "/images/galeria-aguila.jpg", alt: "Águila real en vuelo sobre la sierra" },
+] as const;
+
+---
+
+<Layout>
+  <!-- ============ HERO ============ -->
+  <section class="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-forest-950 text-white">
+    <div class="absolute inset-0 -z-10 overflow-hidden">
+      <img src="/images/hero.jpg" srcset="/images/hero-sm.jpg 900w, /images/hero.jpg 1600w" sizes="100vw" alt="" class="slow-zoom h-[115%] w-full object-cover" data-parallax="0.35" fetchpriority="high" />
+    </div>
+    <div class="hero-shade absolute inset-0 -z-10"></div>
+    <div class="absolute inset-x-0 bottom-0 -z-10 h-48 bg-gradient-to-t from-forest-950/80 to-transparent"></div>
+    <div class="topo absolute inset-y-0 left-0 -z-10 w-1/2 opacity-80"></div>
+
+    <div class="container-x relative grid items-center gap-10 pt-28 pb-20 lg:grid-cols-[1.15fr_1fr]">
+      <div class="hero-in relative max-w-xl pl-6 sm:pl-8">
+        <span class="absolute top-9 bottom-2 left-0 w-px bg-gradient-to-b from-lime-glow/70 via-white/20 to-transparent" aria-hidden="true"></span>
+        <p class="-ml-6 flex items-center gap-3 font-display text-xs font-semibold tracking-[0.3em] text-lime-glow uppercase sm:-ml-8 sm:text-sm">
+          <Icon name="pine" class="size-4 -translate-x-[0.45rem]" /> Ejido forestal
+        </p>
+        <h1 class="mt-4 font-display text-[3.25rem] leading-[0.95] font-extrabold tracking-[-0.035em] drop-shadow-[0_4px_24px_rgba(0,0,0,0.35)] sm:text-[5.5rem]">
+          San Diego<br />de <span class="hero-accent">Tezains</span>
+        </h1>
+        <p class="mt-7 font-display text-xl leading-snug font-semibold text-white/85 sm:text-[1.65rem]">
+          <span class="font-bold text-white">Bosques</span> que nos dan vida,<br /><span class="font-bold text-white">comunidad</span> que los cuida.
+        </p>
+        <p class="mt-5 max-w-md text-sm leading-relaxed text-white/75 sm:text-base">
+          <strong class="font-semibold text-white">Somos</strong> un ejido forestal de la Sierra Madre Occidental, en {site.municipio}, {site.estado}, comprometido con el manejo sustentable de nuestros bosques, su conservación y el bienestar de nuestras familias.
+        </p>
+        <div class="flex flex-wrap gap-4 pt-9">
+          <a href="/nosotros" class="btn-hero group" data-magnetic>
+            <Icon name="leaf" class="size-[1.1rem]" /> Conoce nuestra historia
+            <Icon name="arrow" class="size-4 transition-transform group-hover:translate-x-1" />
+          </a>
+          <a href="/noticias" class="btn-ghost" data-magnetic>
+            <Icon name="calendar" class="size-[1.1rem]" /> Noticias
+          </a>
+        </div>
+      </div>
+      <div class="hidden justify-end lg:flex">
+        <p class="hero-in -rotate-[14deg] text-right font-hand text-[3.4rem] leading-[1.05] font-bold drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)]">
+          <span><span class="text-white">Nuestro bosque,</span><br /><span class="text-lime-glow">nuestra herencia.</span></span>
+          <svg class="draw-line is-visible ml-auto block h-6 w-64 text-lime-glow" viewBox="0 0 220 20" fill="none" aria-hidden="true">
+            <path d="M2 16C60 6 150 3 218 4" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" />
+          </svg>
+        </p>
+      </div>
+    </div>
+
+    <a href="#ultimas-noticias" class="absolute bottom-6 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-[0.65rem] tracking-[0.3em] text-white/60 uppercase sm:flex" aria-label="Bajar">
+      Descubre
+      <span class="flex h-9 w-5 justify-center rounded-full border border-white/40 pt-1.5"><span class="h-2 w-1 animate-bounce rounded-full bg-white/80"></span></span>
+    </a>
+  </section>
+
+  <!-- ============ NOTICIAS ============ -->
+  <section id="ultimas-noticias" class="py-20 sm:py-28">
+    <div class="container-x">
+      <div class="flex flex-wrap items-end justify-between gap-6">
+        <div>
+          <p class="eyebrow" data-reveal="up">Noticias y actualidad</p>
+          <h2 class="mt-3 text-3xl font-semibold text-forest-900 sm:text-4xl" data-reveal="up" data-delay="100">Lo último del ejido</h2>
+          <p class="mt-2 text-ink/70" data-reveal="up" data-delay="150">Conoce nuestros avances, proyectos y reconocimientos.</p>
+        </div>
+        <a href="/noticias" class="btn-outline" data-reveal="up" data-delay="200">Ver todas las noticias <Icon name="chevron" class="size-4" /></a>
+      </div>
+      <div class="mt-12 grid gap-6 md:grid-cols-3">
+        {latest.map((post, i) => <NewsCard post={post} delay={i * 120} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SOBRE NOSOTROS ============ -->
+  <section id="nosotros" class="relative overflow-hidden py-20 sm:py-28">
+    <div class="container-x grid items-center gap-14 lg:grid-cols-2">
+      <div>
+        <p class="eyebrow" data-reveal="up">Sobre nosotros</p>
+        <h2 class="mt-3 text-3xl leading-tight font-semibold text-forest-900 sm:text-4xl" data-reveal="up" data-delay="100">
+          Un ejido con historia,<br />raíces y futuro
+        </h2>
+        <p class="mt-5 max-w-lg leading-relaxed text-ink/70" data-reveal="up" data-delay="200">
+          Dotado por Resolución Presidencial en {stats.fundacion}, el Ejido San Diego de Tezains reúne a {stats.ejidatarios} ejidatarios que administran de manera responsable más de 60 mil hectáreas de bosque en el corazón de la sierra, combinando tradición, trabajo en equipo y visión a largo plazo.
+        </p>
+        <ul class="mt-9 grid grid-cols-2 gap-6 sm:grid-cols-4">
+          {
+            pillars.map((p, i) => (
+              <li class="group flex flex-col gap-3 sm:border-l sm:border-forest-900/10 sm:pl-4 sm:first:border-0 sm:first:pl-0" data-reveal="up" data-delay={250 + i * 100}>
+                <span class="grid size-11 place-items-center rounded-xl bg-leaf-500/10 text-forest-700 transition duration-300 group-hover:-translate-y-1 group-hover:bg-leaf-500 group-hover:text-white">
+                  <Icon name={p.icon} class="sway-icon size-6" />
+                </span>
+                <span class="text-xs leading-snug font-medium whitespace-pre-line text-forest-900">{p.label}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <a href="/nosotros" class="btn-dark mt-10" data-reveal="up" data-delay="600">Nuestra historia <Icon name="chevron" class="size-4" /></a>
+      </div>
+
+      <div class="relative" data-reveal="right" data-delay="150">
+        <div class="overflow-hidden rounded-3xl rounded-tr-[5rem] shadow-2xl shadow-forest-900/20" data-reveal="mask">
+          <img src="/images/sobre-nosotros.jpg" alt="Lago de montaña rodeado de pinos" loading="lazy" class="aspect-[4/3] w-full object-cover" />
+        </div>
+        <div class="absolute -bottom-6 left-4 flex items-center gap-3 rounded-2xl bg-forest-900 p-4 pr-6 text-white shadow-xl sm:left-6" data-reveal="up" data-delay="500">
+          <span class="grid size-10 place-items-center rounded-full bg-leaf-500/20 text-leaf-400"><Icon name="pin" /></span>
+          <div class="text-xs leading-relaxed">
+            <p class="font-semibold">Ubicación</p>
+            <p class="text-white/70">{site.municipio}, {site.estado}, México</p>
+          </div>
+        </div>
+        <Icon name="pine" class="absolute -right-4 -bottom-10 hidden size-28 text-forest-700/15 lg:block" strokeWidth={1} />
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VALOR DE LOS BOSQUES ============ -->
+  <section id="bosques" class="relative isolate overflow-hidden bg-forest-950 text-white">
+    <div class="absolute inset-y-0 right-0 -z-10 w-full lg:w-3/5">
+      <img src="/images/valor-bosque.jpg" alt="" loading="lazy" class="size-full object-cover" />
+      <div class="absolute inset-0 bg-gradient-to-r from-forest-950 via-forest-950/60 to-forest-950/10"></div>
+    </div>
+    <div class="container-x grid gap-10 py-20 sm:py-24 lg:grid-cols-[1.4fr_1fr]">
+      <div>
+        <h2 class="flex items-start gap-3 text-3xl leading-tight font-semibold sm:text-4xl" data-reveal="left">
+          <Icon name="sprout" class="mt-1 size-7 shrink-0 text-leaf-400" />
+          <span>El valor de<br />nuestros bosques</span>
+        </h2>
+        <p class="mt-5 max-w-md text-white/75" data-reveal="left" data-delay="100">
+          Nuestros bosques no solo son madera: son agua, vida, suelo fértil y un legado para las próximas generaciones.
+        </p>
+        <ul class="mt-10 grid max-w-2xl grid-cols-2 gap-6 sm:grid-cols-4">
+          {
+            values.map((v, i) => (
+              <li class="flex flex-col items-center gap-3 text-center" data-reveal="zoom" data-delay={200 + i * 120}>
+                <span class="group grid size-16 place-items-center rounded-2xl border border-leaf-400/30 bg-forest-900/70 text-leaf-400 backdrop-blur transition hover:-translate-y-1 hover:bg-leaf-500 hover:text-white">
+                  <Icon name={v.icon} class="sway-icon size-8" strokeWidth={1.3} />
+                </span>
+                <span class="text-xs leading-snug font-medium text-white/90">{v.label}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div class="flex items-end justify-end">
+        <p class="max-w-[13rem] rounded-2xl bg-forest-950/60 p-5 text-right text-sm leading-relaxed text-white/90 backdrop-blur" data-reveal="up" data-delay="400">
+          Cuidar nuestros bosques también es cuidar <span class="text-leaf-300 underline decoration-leaf-400 underline-offset-4">el agua y la vida</span>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LO QUE HACEMOS ============ -->
+  <section class="py-20 sm:py-28">
+    <div class="container-x">
+      <div class="flex flex-wrap items-end justify-between gap-6">
+        <div>
+          <p class="eyebrow" data-reveal="up">Nuestras actividades</p>
+          <h2 class="mt-3 text-3xl font-semibold text-forest-900 sm:text-4xl" data-reveal="up" data-delay="100">Lo que hacemos</h2>
+          <p class="mt-3 max-w-md text-ink/70" data-reveal="up" data-delay="150">
+            Trabajamos con responsabilidad y conocimiento técnico para aprovechar y conservar nuestros recursos forestales.
+          </p>
+        </div>
+        <a href={site.forestal} target="_blank" rel="noopener" class="btn-outline" data-reveal="up" data-delay="200">
+          Conoce Forestal Tezains <Icon name="chevron" class="size-4" />
+        </a>
+      </div>
+
+      <div class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+        {
+          services.map((s, i) => (
+            <article data-spotlight class="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-forest-900/5 transition duration-500 hover:-translate-y-2 hover:shadow-xl" data-reveal="up" data-delay={i * 110}>
+              <div class="aspect-[4/3] overflow-hidden">
+                <img src={s.img} alt="" loading="lazy" class="size-full object-cover transition duration-700 group-hover:scale-110" />
+              </div>
+              <div class="p-5">
+                <span class="grid size-9 place-items-center rounded-lg bg-forest-800 text-leaf-300 transition duration-300 group-hover:-rotate-8 group-hover:bg-leaf-500 group-hover:text-white">
+                  <Icon name={s.icon} class="size-5" />
+                </span>
+                <h3 class="mt-3 font-sans text-sm leading-snug font-semibold text-forest-900">{s.title}</h3>
+                <p class="mt-2 text-xs leading-relaxed text-ink/60">{s.text}</p>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GALERÍA ============ -->
+  <section class="topo relative overflow-hidden bg-forest-950 py-20 text-white sm:py-24">
+    <div class="container-x grid items-center gap-10 lg:grid-cols-[1fr_2.4fr]">
+      <div>
+        <p class="eyebrow !text-leaf-400" data-reveal="up">Galería</p>
+        <h2 class="mt-3 text-3xl leading-tight font-semibold sm:text-4xl" data-reveal="up" data-delay="100">Nuestra tierra<br />en imágenes</h2>
+        <p class="mt-4 text-white/70" data-reveal="up" data-delay="150">
+          La belleza de nuestros bosques, la fauna de la sierra y el trabajo que nos une.
+        </p>
+        <a href="/nosotros#biodiversidad" class="btn-leaf mt-8" data-reveal="up" data-delay="200">Ver biodiversidad <Icon name="chevron" class="size-4" /></a>
+      </div>
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {
+          gallery.map((g, i) => (
+            <figure class:list={["group", i % 2 ? "sm:translate-y-8" : ""]} data-reveal="up" data-delay={i * 130}>
+              <div data-tilt class="relative overflow-hidden rounded-2xl shadow-lg shadow-black/30">
+                <img src={g.src} alt={g.alt} loading="lazy" decoding="async" class="aspect-[3/4] w-full object-cover transition duration-700 group-hover:scale-110" />
+                <figcaption class="absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-forest-950/90 to-transparent p-3 pt-8 text-xs font-medium text-white/90 transition duration-500 group-hover:translate-y-0">
+                  {g.alt}
+                </figcaption>
+              </div>
+            </figure>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TERRITORIO ============ -->
+  <TerritoryMap />
+
+  <!-- ============ IMPACTO ============ -->
+  <section class="relative isolate overflow-hidden bg-forest-950 py-20 text-white sm:py-24">
+    <img src="/images/impacto.jpg" alt="" loading="lazy" class="absolute inset-x-0 -top-1/4 -z-10 h-[150%] w-full object-cover" data-parallax="0.15" />
+    <div class="absolute inset-0 -z-10 bg-gradient-to-r from-forest-950/95 via-forest-950/75 to-forest-950/50"></div>
+    <div class="container-x grid gap-12 lg:grid-cols-[1fr_2fr] lg:items-center">
+      <div>
+        <h2 class="text-3xl font-semibold sm:text-4xl" data-reveal="up">Nuestro impacto</h2>
+        <p class="mt-4 max-w-sm text-white/75" data-reveal="up" data-delay="100">
+          El trabajo de nuestra comunidad genera un impacto positivo en el medio ambiente y en la economía local.
+        </p>
+      </div>
+      <dl class="grid grid-cols-2 gap-8 sm:grid-cols-4">
+        <div data-reveal="up" data-delay="100">
+          <Icon name="pine" class="size-8 text-leaf-400" />
+          <dd class="mt-3 font-serif text-3xl font-semibold"><span data-count="60097">0</span> <span class="text-base">ha</span></dd>
+          <dt class="text-xs text-white/65">superficie del ejido</dt>
+        </div>
+        <div data-reveal="up" data-delay="200">
+          <Icon name="users" class="size-8 text-leaf-400" />
+          <dd class="mt-3 font-serif text-3xl font-semibold"><span data-count={stats.ejidatarios}>0</span></dd>
+          <dt class="text-xs text-white/65">ejidatarios</dt>
+        </div>
+        <div data-reveal="up" data-delay="300">
+          <Icon name="shield" class="size-8 text-leaf-400" />
+          <dd class="mt-3 font-serif text-3xl font-semibold"><span data-count="30348">0</span> <span class="text-base">ha</span></dd>
+          <dt class="text-xs text-white/65">certificadas FSC</dt>
+        </div>
+        <div data-reveal="up" data-delay="400">
+          <Icon name="calendar" class="size-8 text-leaf-400" />
+          <dd class="mt-3 font-serif text-3xl font-semibold">+<span data-count={yearsManaging}>0</span></dd>
+          <dt class="text-xs text-white/65">años de manejo forestal</dt>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ============ COMUNIDAD ============ -->
+  <section id="comunidad" class="grid bg-forest-900 text-white lg:grid-cols-[1fr_1.4fr]">
+    <div class="relative min-h-[20rem] overflow-hidden" data-reveal="left">
+      <img src="/images/comunidad.jpg" alt="Integrantes de la comunidad" loading="lazy" class="absolute inset-0 size-full object-cover" />
+    </div>
+    <div class="topo relative flex items-center px-4 py-16 sm:px-12">
+      <div class="max-w-lg">
+        <p class="eyebrow !text-leaf-400" data-reveal="up">Nuestra gente</p>
+        <h2 class="mt-3 text-3xl font-semibold sm:text-4xl" data-reveal="up" data-delay="100">La fuerza de la comunidad</h2>
+        <p class="mt-4 text-white/75" data-reveal="up" data-delay="150">
+          El ejido es más que un terreno: es nuestra casa, nuestra cultura y nuestro futuro. Nuestra empresa forestal genera más de 200 empleos, y los recursos de los bonos de carbono se convierten en obras como el sistema de bombeo de agua de 5 km que abastece a San Diego.
+        </p>
+        <a href="/nosotros#comunidades" class="btn-leaf mt-8" data-reveal="up" data-delay="200">Conoce a nuestra comunidad <Icon name="chevron" class="size-4" /></a>
+      </div>
+      <p class="absolute top-10 right-8 hidden rotate-6 text-right font-script text-3xl leading-tight text-leaf-300 xl:block" data-reveal="zoom" data-delay="400">
+        "Juntos<br />cuidamos<br />lo que nos<br />da vida"
+      </p>
+    </div>
+  </section>
+
+</Layout>

@@ -1,0 +1,89 @@
+---
+// Mapa estático "Cómo llegar": imagen generada con `node scripts/mapa-ruta.mjs` y la ruta dibujada en SVG encima.
+// No carga ninguna librería de mapas.
+import Icon from "./Icon.astro";
+import ruta from "../data/ruta.json";
+import { start, end } from "../lib/routes.js";
+
+const { width: W, height: H } = ruta;
+const route = ruta.routes[0];
+const pos = (p: { x: number; y: number }) => `left:${(p.x / W) * 100}%;top:${(p.y / H) * 100}%`;
+
+const mins = Math.round(route.duration / 60);
+const duration = mins < 60 ? `${mins} min` : `${Math.floor(mins / 60)} h ${mins % 60} min`;
+const distance = `${Math.round(route.distance / 1000)} km`;
+const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${start.lat},${start.lng}&destination=${end.lat},${end.lng}&travelmode=driving`;
+---
+
+<div class="route-map relative aspect-[16/10] w-full overflow-hidden rounded-3xl bg-[#e9ece2]">
+  <img src="/images/ruta-mapa.webp" alt="Mapa de la ruta en carretera de Santiago Papasquiaro a Forestal Tezains" width="1600" height="1001" loading="lazy" decoding="async" class="absolute inset-0 size-full object-cover" />
+
+  <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" class="absolute inset-0 size-full" aria-hidden="true">
+    <path id="ruta-path" d={route.d} fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+    <path class="route-draw" d={route.d} pathLength="1" fill="none" stroke="#3f7f27" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+    <!-- Un vehículo recorre la ruta -->
+    <g class="route-car">
+      <circle r="16" fill="#86c96a" opacity=".35" />
+      <circle r="8" fill="#fff" stroke="#1f4a32" stroke-width="4" />
+      <animateMotion dur="9s" repeatCount="indefinite" calcMode="linear">
+        <mpath href="#ruta-path" />
+      </animateMotion>
+    </g>
+  </svg>
+
+  <!-- Marcadores -->
+  <div class="absolute" style={pos(ruta.start)}>
+    <span class="absolute size-3.5 -translate-1/2 rounded-full border-[3px] border-forest-800 bg-white shadow-md"></span>
+    <span class="absolute top-3 -translate-x-1/2 rounded-full bg-white/95 px-2 py-0.5 text-[0.7rem] font-semibold whitespace-nowrap text-forest-900 shadow">Santiago Papasquiaro</span>
+  </div>
+  <div class="absolute" style={pos(ruta.end)}>
+    <span class="marker-pulse absolute grid size-7 -translate-1/2 place-items-center rounded-full bg-leaf-500 text-white shadow-lg ring-2 ring-white">
+      <Icon name="pine" class="size-4" />
+    </span>
+    <span class="absolute top-4 -translate-x-1/2 rounded-full bg-forest-900 px-2.5 py-0.5 text-[0.7rem] font-semibold whitespace-nowrap text-white shadow">Forestal Tezains</span>
+  </div>
+
+  <!-- Resumen -->
+  <div class="absolute top-3 left-3 rounded-2xl bg-white/95 p-3 pr-5 shadow-lg ring-1 ring-forest-900/10">
+    <p class="text-[0.65rem] font-semibold tracking-wider text-ink/55 uppercase">Santiago → Tezains</p>
+    <p class="mt-1 flex items-baseline gap-2">
+      <span class="font-display text-lg font-bold text-forest-900 tabular-nums">{duration}</span>
+      <span class="text-xs text-ink/60 tabular-nums">{distance} en carretera</span>
+    </p>
+  </div>
+
+  <a href={directionsUrl} target="_blank" rel="noopener noreferrer" data-magnetic class="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-forest-800 px-4 py-2 text-xs font-semibold text-cream shadow-lg hover:bg-forest-900">
+    <Icon name="compass" class="size-4" /> Cómo llegar
+    <Icon name="external" class="size-3.5 opacity-70" />
+  </a>
+
+  <p class="absolute right-2 bottom-1.5 rounded bg-white/70 px-1.5 text-[0.6rem] text-ink/60">Mapa © Esri · Ruta © OpenStreetMap / OSRM</p>
+</div>
+
+<style>
+  /* La ruta se dibuja de Santiago a Tezains cuando el mapa entra en pantalla. */
+  .route-draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 2.4s cubic-bezier(0.65, 0, 0.35, 1) 0.4s;
+  }
+  :global(.is-visible) .route-draw {
+    stroke-dashoffset: 0;
+  }
+  .route-car {
+    opacity: 0;
+    transition: opacity 0.6s 2.8s;
+  }
+  :global(.is-visible) .route-car {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .route-draw {
+      stroke-dashoffset: 0;
+      transition: none;
+    }
+    .route-car {
+      display: none;
+    }
+  }
+</style>
